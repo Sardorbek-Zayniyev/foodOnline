@@ -34,3 +34,6 @@ def registerUser(request):
         'form':form
     }
     return render(request, 'accounts/register_user.html', context ) 
+
+def registerVendor(request):
+    return render(request, 'accounts/register_vendor.html')

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied</title>
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff; /* White background */
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #333; /* Dark gray text color */
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #666; /* Medium gray text color */
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+
+        .icon {
+            width: 150px;
+            margin-bottom: 30px;
+            fill: #ff0000; /* Red color for the icon */
+        }
+
+        a {
+            color: #fff; /* White text color */
+            background-color: #007bff; /* Blue button color */
+            padding: 12px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm6.226 16.226c-.2.2-.516.2-.716 0L12 12.716l-5.51 5.51c-.2.2-.516.2-.716 0-.2-.2-.2-.516 0-.716l5.51-5.51-5.51-5.51c-.2-.2-.2-.516 0-.716s.516-.2.716 0L12 11.284l5.51-5.51c.2-.2.516-.2.716 0s.2.516 0 .716L12.716 12l5.51 5.51c.2.2.2.516 0 .716z"/></svg>
+        <h1>Access Denied</h1>
+        <p>Oops! You are not authorized to view this page.</p>
+        <a href="{% url 'my_account' %}">Go to Homepage</a>
+    </div>
+</body>
+</html>

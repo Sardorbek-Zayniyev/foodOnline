@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
 
-from accounts.utils import detectUser
+from accounts.utils import detectUser, check_role_vendor, check_role_customer
 from vendor.forms import VendorForm
 from .forms import UserForm
 from .models import User, UserProfile
 from django.contrib import messages, auth
-from django.contrib.auth.decorators import login_required
-    # Create your views here.
+from django.contrib.auth.decorators import login_required, user_passes_test
+# Create your views here.
+
+
 
 def registerUser(request):
     if request.user.is_authenticated:
@@ -110,9 +112,11 @@ def myAccount(request):
     return redirect(redirectUrl)
 
 @login_required(login_url='login')
+@user_passes_test(check_role_customer)
 def custDashboard(request):
     return render(request, 'accounts/cust_dashboard.html')
 
 @login_required(login_url='login')
+@user_passes_test(check_role_vendor)
 def vendorDashboard(request):
     return render(request, 'accounts/vendor_dashboard.html')

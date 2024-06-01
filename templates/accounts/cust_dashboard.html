@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block content %}
-    Dashboard
+    Welcome {{user.username}}
+    This is a {{user.get_role}}
      <!-- Load Messages -->
      {% include 'includes/alerts.html' %}
 {% endblock content %}

@@ -1,0 +1,11 @@
+{% autoescape off %}
+    
+Hi {{user.first_name}},
+
+{% if is_approved  %}
+'Congratulations! Your restaurant has been approved by our admin team.
+{% else %}
+We regret to inform you that your restaurant has not met the necessary criteria for approval. For more details please contact support me.seniordev@gmail.com
+{% endif %}
+
+{% endautoescape %}

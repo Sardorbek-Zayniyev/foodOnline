@@ -9,7 +9,7 @@ def detectUser(user):
     }
     return role_redirects.get(user.role, 'default_dashboard')
 
-#restrictions
+#restrict the user to access unauthorized pages"
 def check_role(user, required_role):
     if user.role != required_role:
         raise PermissionDenied

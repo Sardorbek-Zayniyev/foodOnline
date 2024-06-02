@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required, user_passes_test
+
+from vendor.models import Vendor
 from .forms import UserForm
 from .models import User, UserProfile
 from vendor.forms import VendorForm

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'vendor',
+    'menu',
     
 ]
 
@@ -152,7 +153,6 @@ MESSAGE_TAGS = {
 }
 #google API
 GOOGLE_API_KEY = config('GOOGLE_API_KEY')
-# GOOGLE_API_KEY = 'AIzaSyBvnh875iLqPbT9rxqOOO6nnFaHwdFok0Q'
 
 
 #sending email

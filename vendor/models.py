@@ -34,3 +34,6 @@ class Vendor(models.Model):
                 send_notification(mail_subject, email_template, context)
 
         return super(Vendor, self).save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.vendor_name

@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from accounts.context_processors import get_vendor
 from accounts.forms import UserProfileForm
 from accounts.models import UserProfile
+from menu.models import Category
 from vendor.models import Vendor
 from .forms import VendorForm
 from django.contrib import messages
@@ -35,3 +37,11 @@ def vendor_profile(request):
         'vendor' : vendor,
     }
     return render(request, 'vendor/vendor_profile.html', context)
+
+
+
+@login_required(login_url='login')
+@user_passes_test(check_role_vendor)
+def menu_builder(request):
+    
+    return render(request, 'vendor/menu_builder.html')

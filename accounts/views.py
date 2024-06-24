@@ -42,7 +42,7 @@ def register_vendor(request):
             user_profile = UserProfile.objects.get(user=user)
             vendor.user_profile = user_profile
             vendor.save()
-            messages.success(request, "Your Gmail verification link has been successfully sent. Please click it to complete the verification process.")
+            messages.success(request, "Your Email verification link has been successfully sent. Please click it to complete the verification process.")
             return redirect('login')     
     else:
         form = UserForm()

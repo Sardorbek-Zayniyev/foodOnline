@@ -81,6 +81,9 @@ class User(AbstractBaseUser):
             2: 'Customer',
         }
         return roles.get(self.role, 'Unknown')
+    
+    def is_vendor(self):
+        return self.role == self.VENDOR
 
 class UserProfile(models.Model):
     user = OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)

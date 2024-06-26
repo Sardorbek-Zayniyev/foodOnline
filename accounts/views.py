@@ -7,7 +7,7 @@ from .forms import UserForm
 from .models import User, UserProfile
 from vendor.forms import VendorForm
 from accounts.utils import detect_user, check_role_vendor, check_role_customer, send_verification_email, create_user_and_send_verification_email, activate_user
-
+from django.template.defaultfilters import slugify
 
 # Create your views here.
 def register_user(request):
@@ -39,6 +39,8 @@ def register_vendor(request):
             user = create_user_and_send_verification_email(request, form, User.VENDOR, 'accounts/emails/account_verification_email.html')
             vendor = v_form.save(commit=False)
             vendor.user = user
+            vendor_name = v_form.cleaned_data['vendor_name']
+            vendor.vendor_slug = slugify(vendor_name)+'-'+str(user.id)
             user_profile = UserProfile.objects.get(user=user)
             vendor.user_profile = user_profile
             vendor.save()

@@ -5,7 +5,8 @@ autocomplete = new google.maps.places.Autocomplete(
     document.getElementById('id_address'),
     {
         types: ['geocode', 'establishment'],
-       componentRestrictions: {'country': ['uz']},
+        //default in this app is "IN" - add your country code
+        componentRestrictions: {'country': ['in']},
     })
 // function to specify what should happen when the prediction is clicked
 autocomplete.addListener('place_changed', onPlaceChanged);

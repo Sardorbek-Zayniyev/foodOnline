@@ -5,7 +5,7 @@ from marketplace.models import Cart
 # Register your models here.
 
 class CartAdmin(admin.ModelAdmin):
-    list_display = {'user', 'fooditem', 'quantity', 'update_at'}
+    list_display = ('user', 'fooditem', 'quantity', 'updated_at')
 
-admin.site.register(Cart)
+admin.site.register(Cart, CartAdmin)
 

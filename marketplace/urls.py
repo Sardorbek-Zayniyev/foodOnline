@@ -9,6 +9,7 @@ urlpatterns = [
     path('add-to-cart/<int:food_id>/', views.add_to_cart, name='add_to_cart'),
     #Decrese cart
     path('decrease-cart/<int:food_id>/', views.decrease_cart, name='decrease_cart'),
+   
 
 
 ]

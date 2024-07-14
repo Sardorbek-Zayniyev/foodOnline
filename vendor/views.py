@@ -3,9 +3,9 @@ from accounts.forms import UserProfileForm
 from accounts.models import UserProfile
 from menu.forms import CategoryForm, FoodItemForm
 from menu.models import Category, FoodItem
-from vendor.models import Vendor
+from vendor.models import OpeningHour, Vendor
 from vendor.utils import get_vendor
-from .forms import VendorForm
+from .forms import VendorForm ,OpeningHoursForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts.utils import check_role_vendor
@@ -181,3 +181,14 @@ def delete_food(request, pk=None):
     food.delete()
     messages.success(request, f'Food Item "{food}"  has been deleted successfully!')
     return redirect('fooditems_by_category', food.category.id)
+
+@login_required(login_url='login')
+@user_passes_test(check_role_vendor)
+def opening_hours(request):
+    opening_hours = OpeningHour.objects.filter(vendor=get_vendor(request))
+    form = OpeningHoursForm()
+    context = {
+        'form':form,
+        'opening_hours': opening_hours, 
+    }
+    return render(request, 'vendor/opening_hours.html', context)

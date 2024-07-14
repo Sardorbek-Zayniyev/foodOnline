@@ -1,7 +1,8 @@
-from datetime import time
+from datetime import date, datetime, time, timedelta
 from django.db import models
 from accounts.models import User, UserProfile
 from accounts.utils import send_notification
+from dateutil import tz
 # Create your models here.
 
 
@@ -39,6 +40,31 @@ class Vendor(models.Model):
     def __str__(self):
         return self.vendor_name
     
+    def is_open(self):
+        # Check current day's opening hours.
+        today_date = date.today()
+        today = today_date.isoweekday()
+        
+        current_opening_hours = OpeningHour.objects.filter(vendor=self, day=today)
+        now = datetime.now() + timedelta(hours=5) #Uzbekistan/Tashkent
+
+        current_time = now.strftime("%H:%M:%S")
+
+        is_open = None
+        for i in current_opening_hours:
+            if not i.is_closed:
+                start = str(datetime.strptime(i.from_hour, "%I:%M %p").time())
+                end = str(datetime.strptime(i.to_hour, "%I:%M %p").time())
+                if current_time > start and current_time < end:
+                    is_open = True
+                    break
+                else:   
+                    is_open = False
+        return is_open
+    
+    
+    
+    
 DAYS = [
     (1,("Monday")),
     (2,("Tuesday")),
@@ -58,8 +84,8 @@ class OpeningHour(models.Model):
     is_closed = models.BooleanField(default=False)
     
     class Meta:
-        ordering = ('day', 'from_hour')
-        unique_together = ('day', 'from_hour', 'to_hour')
+        ordering = ('day', '-from_hour')
+        unique_together = ('vendor','day', 'from_hour', 'to_hour')
         
     def __str__(self):
         return self.get_day_display()

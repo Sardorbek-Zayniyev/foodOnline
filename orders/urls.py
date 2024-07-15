@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # path('', views.marketplace, name='marketplace'),
+    path('place-order/', views.place_order, name='place_order'),
 
 
 

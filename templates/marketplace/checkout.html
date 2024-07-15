@@ -21,7 +21,7 @@
                                 
                                     <div id="menu-item-list-6272" class="menu-itam-list">
                                         
-                                        <form action="#" method="POST">
+                                        <form action="{% url 'place_order' %}" method="POST">
                                             {% csrf_token %}
 
                                             <div class="row">
@@ -149,7 +149,27 @@
                                                 </span>
                                             </li>
 
-                                            
+                                            <!-- Select payment method -->
+                                            <h5>SELECT PAYMENT METHOD</h5>
+                                            <div class="payment-method">
+                                                &emsp;
+                                                <label>
+                                                    <input type="radio" name="payment_method" value="PayPal">
+                                                    <img src="{% static 'images/PayPal.png' %}" alt="PayPal" width="140">
+                                                </label>
+                                                &emsp;&emsp;
+                                                <label>
+                                                    <input type="radio" name="payment_method" value="Click">
+                                                    <img src="{% static 'images/Click.jpg' %}" alt="Click" width="120">
+                                                </label> 
+                                                &emsp;
+                                                <label>
+                                                    <input type="radio" name="payment_method" value="Payme">
+                                                    <img src="{% static 'images/Payme.jpg' %}" alt="Payme" width="130">
+                                                </label> 
+                                            </div>
+                                            <span class="text-danger" id="payment-method-error"></span>
+                                            <!-- Select payment method -->
 
                                             <button onclick="return payMethodConfirm();" type="submit" class="btn btn-danger w-100 p-2 mt-3">PLACE ORDER</button>
                                         </ul>

@@ -37,8 +37,12 @@ def check_role_customer(user):
 def send_notification(email_subject, email_template, context):
     from_email = settings.DEFAULT_FROM_EMAIL
     message = render_to_string(email_template, context)
-    to_email = context['user'].email
-    mail = EmailMessage(email_subject, message, from_email, to=[to_email])
+    if(isinstance(context['to_email'], str)):
+        to_email = []
+        to_email.append(context['to_email'])
+    else:
+        to_email = context['to_email']
+    mail = EmailMessage(email_subject, message, from_email, to=to_email)
     mail.send()
     
 def send_verification_email(request, user, mail_subject, email_template):

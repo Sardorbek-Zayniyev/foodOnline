@@ -1,0 +1,11 @@
+{% autoescape off %}
+    
+Hi {{user.first_name}},
+You have received a new order
+Your order number: {{order.order_number}}
+Transaction ID: {{order.payment.transaction.id}}
+
+
+{% comment %} http://{{domain}}{% url 'activate' uidb64=uid token=token%} {% endcomment %}
+
+{% endautoescape %}

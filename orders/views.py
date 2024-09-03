@@ -1,13 +1,18 @@
+from django.http import HttpResponse, JsonResponse
 import simplejson as json
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 
+from accounts.utils import send_notification
 from marketplace.context_processors import get_cart_amounts
 from marketplace.models import Cart, Tax
 from menu.models import FoodItem
 from orders.forms import OrderForm
-from orders.models import Order
+from orders.models import Order, OrderedFood, Payment
 from orders.utils import generate_order_number
+from django.contrib.sites.shortcuts import get_current_site
+
+
 
 # Create your views here.
 
@@ -43,7 +48,117 @@ def place_order(request):
             order.payment_method = request.POST['payment_method']
             order.save() # order id/ pk is generated
             order.order_number = generate_order_number(order.id)
+            
             order.save()
+            context = {
+                'order': order,
+                'cart_items': cart_items,
+            }
         else:
             print(form.errors)
-    return render(request, 'orders/place-order.html')
+    return render(request, 'orders/place-order.html', context)
+
+@login_required(login_url='login')
+def payments(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' and request.method == 'POST':
+        order_number = request.POST.get('order_number')
+        transaction_id = request.POST.get('transaction_id')
+        payment_method = request.POST.get('payment_method')
+        status = request.POST.get('status')
+
+        order = Order.objects.get(user=request.user, order_number=order_number)
+        payment = Payment(
+            user = request.user,
+            transaction_id = transaction_id,
+            payment_method = payment_method,
+            amount = order.total,
+            status = status
+        )
+        payment.save()
+        
+        order.payment = payment
+        order.is_ordered = True
+        order.save()
+        
+        cart_items = Cart.objects.filter(user=request.user)
+        for item in cart_items:
+            ordered_food = OrderedFood()
+            ordered_food.order = order
+            ordered_food.payment = payment
+            ordered_food.user = request.user
+            ordered_food.fooditem = item.fooditem
+            ordered_food.quantity = item.quantity
+            ordered_food.price = item.fooditem.price
+            ordered_food.amount = item.fooditem.price * item.quantity # total amount
+            ordered_food.save()
+            
+        # SEND ORDER CONFIRMATION EMAIL TO THE CUSTOMER
+        mail_subject = 'Thank you for ordering with us.'
+        mail_template = 'orders/order_confirmation_email.html'
+
+        ordered_food = OrderedFood.objects.filter(order=order)
+        customer_subtotal = 0
+        for item in ordered_food:
+            customer_subtotal += (item.price * item.quantity)
+        tax_data = json.loads(order.tax_data)
+        context = {
+            'user': request.user,
+            'order': order,
+            'to_email': order.email,
+            'ordered_food': ordered_food,
+            'domain': get_current_site(request),
+            'customer_subtotal': customer_subtotal,
+            'tax_data': tax_data,
+        }
+        send_notification(mail_subject, mail_template, context)
+        
+        # SEND ORDER RECEIVED EMAIL TO THE VENDOR
+        mail_subject = 'You have received a new order.'
+        mail_template = 'orders/new_order_received.html'
+        to_emails = []
+        for i in cart_items:
+            if i.fooditem.vendor.user.email not in to_emails:
+                to_emails.append(i.fooditem.vendor.user.email)
+
+                ordered_food_to_vendor = OrderedFood.objects.filter(order=order, fooditem__vendor=i.fooditem.vendor)
+                print(ordered_food_to_vendor)
+
+        
+                context = {
+                    'order': order,
+                    'to_email': i.fooditem.vendor.user.email,
+                    'ordered_food_to_vendor': ordered_food_to_vendor,
+                  
+                }
+                send_notification(mail_subject, mail_template, context)
+
+                # cart_items.delete() 
+                response = {
+                            'order_number': order_number,
+                            'transaction_id': transaction_id, 
+                            }
+        return JsonResponse(response)
+    return HttpResponse('Payments view')
+    
+def order_complete(request):
+    order_number = request.GET.get('order_no')
+    transaction_id = request.GET.get('trans_id')
+
+    try:
+        order = Order.objects.get(order_number=order_number, payment__transaction_id=transaction_id, is_ordered=True)
+        ordered_food = OrderedFood.objects.filter(order=order)
+
+        subtotal = 0
+        for item in ordered_food:
+            subtotal += (item.price * item.quantity)
+
+        tax_data = json.loads(order.tax_data)
+        context = {
+            'order': order,
+            'ordered_food': ordered_food,
+            'subtotal': subtotal,
+            'tax_data': tax_data,
+        }
+        return render(request, 'orders/order_complete.html', context)
+    except:
+        return redirect('home')

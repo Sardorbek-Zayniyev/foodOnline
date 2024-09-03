@@ -22,7 +22,8 @@ class Vendor(models.Model):
             email_template = 'accounts/emails/admin_approval_email.html'
             context = {
                 'user': self.user,
-                'is_approved': self.is_approved
+                'is_approved': self.is_approved,
+                'to_email': self.user.email,
             }
             if vendor_current_status.is_approved == self.is_approved:
                 return super(Vendor, self).save(*args, **kwargs)

@@ -12,6 +12,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts.utils import check_role_vendor
 from django.template.defaultfilters import slugify
+from orders.models import Order, OrderedFood
+
 
 # Create your views here.
 
@@ -226,3 +228,42 @@ def remove_opening_hours(request, pk=None):
             hour = get_object_or_404(OpeningHour, pk=pk)
             hour.delete()
             return JsonResponse({'status': 'success', 'id': pk})
+        
+        
+
+
+def order_detail(request, order_number):
+    try:
+        order = Order.objects.get(order_number=order_number, is_ordered=True)
+        vendor = get_vendor(request) 
+        ordered_food = OrderedFood.objects.filter(order=order, fooditem__vendor=vendor)
+        
+        total_data = order.get_total_by_vendor(vendor)
+
+        context = {
+            'order': order,
+            'ordered_food': ordered_food,
+            'subtotal': total_data['subtotal'],
+            'tax_data': total_data['tax_dict'],
+            'grand_total': total_data['grand_total'],
+        }
+    except Order.DoesNotExist:
+        messages.error(request, "The order does not exist.")
+        return redirect('vendor')
+    except Exception as e:
+        print(f"Error: {e}")
+        messages.error(request, "An error occurred while retrieving the order details.")
+        return redirect('vendor')
+    return render(request, 'vendor/order_detail.html', context)
+
+
+
+
+def my_orders(request):
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('created_at')
+
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'vendor/my_orders.html', context)

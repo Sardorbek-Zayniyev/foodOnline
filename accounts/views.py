@@ -8,7 +8,7 @@ from .models import User, UserProfile
 from vendor.forms import VendorForm
 from accounts.utils import detect_user, check_role_vendor, check_role_customer, send_verification_email, create_user_and_send_verification_email, activate_user
 from django.template.defaultfilters import slugify
-
+from orders.models import Order
 # Create your views here.
 def register_user(request):
     if request.user.is_authenticated:
@@ -96,7 +96,14 @@ def my_account(request):
 @login_required(login_url='login')
 @user_passes_test(check_role_customer)
 def cust_dashboard(request):
-    return render(request, 'accounts/cust_dashboard.html')
+    orders = Order.objects.filter(user=request.user, is_ordered=True)
+    recent_orders = orders[:5]
+    context = {
+        'orders': orders,
+        'orders_count': orders.count(),
+        'recent_orders': recent_orders,
+    }
+    return render(request, 'accounts/cust_dashboard.html', context)
 
 @login_required(login_url='login')
 @user_passes_test(check_role_vendor)

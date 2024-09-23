@@ -113,8 +113,7 @@ def vendor_dashboard(request):
     try:
         vendor = Vendor.objects.get(user=request.user)
     except Vendor.DoesNotExist:
-        # Handle the case where no vendor exists for the user
-        return redirect('some_error_page')  # Replace with your own error handling
+        return redirect('some_error_page')
 
     orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('created_at')
     recent_orders = orders[:10]
@@ -125,22 +124,27 @@ def vendor_dashboard(request):
     
     current_month_revenue = 0
     for order in current_month_orders:
-        current_month_revenue += order.get_total_by_vendor(vendor)['grand_total']  # Pass vendor here
+        current_month_revenue += order.get_total_by_vendor(vendor)['grand_total']
 
     # Total revenue
     total_revenue = 0
+    grand_totals = []
     for order in orders:
-        total_revenue += order.get_total_by_vendor(vendor)['grand_total']  # Pass vendor here
+        total_by_vendor = order.get_total_by_vendor(vendor)['grand_total']
+        total_revenue += total_by_vendor
+        grand_totals.append(total_by_vendor)
+
+    orders_with_totals = zip(orders, grand_totals)
 
     context = {
-        'orders': orders,
+        'orders_with_totals': orders_with_totals,
         'orders_count': orders.count(),
         'recent_orders': recent_orders,
         'total_revenue': total_revenue,
         'current_month_revenue': current_month_revenue,
     }
-
     return render(request, 'accounts/vendor_dashboard.html', context)
+
 
 
 def forgot_password(request):

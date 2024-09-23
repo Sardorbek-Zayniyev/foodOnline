@@ -263,7 +263,14 @@ def my_orders(request):
     vendor = Vendor.objects.get(user=request.user)
     orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('created_at')
 
+    grand_totals = []
+    for order in orders:
+        total_by_vendor = order.get_total_by_vendor(vendor)['grand_total']
+        grand_totals.append(total_by_vendor)
+
+    orders_with_totals = zip(orders, grand_totals)
+    
     context = {
-        'orders': orders,
+        'orders_with_totals': orders_with_totals,
     }
     return render(request, 'vendor/my_orders.html', context)

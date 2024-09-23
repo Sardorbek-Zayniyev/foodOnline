@@ -40,8 +40,7 @@
 								<a href="{% url 'marketplace' %}" class="btn btn-outline-danger text-uppercase font-weight-bold">Marketplace</a>
 								{% if user.is_authenticated %}
 								<a class="cs-color cs-popup-joinus-btn login-popup" href="{% url 'my_account' %}"><i class="bi bi-person-fill" style="font-size: 24px; color: purple;"></i>  </a>
-								<a class="cs-color cs-popup-joinus-btn login-popup text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right text-danger" style="font-size: 24px;"></i></a>
-
+								<a class="cs-color cs-popup-joinus-btn login-popup text-danger" id="logoutBtn" href="#"><i class="bi bi-box-arrow-right text-danger" style="font-size: 24px;"></i></a>
 								{% else %}
 								<a class="cs-color cs-popup-joinus-btn login-popup" href="{% url 'login' %}">Login </a> / 
 									<span><a href="{% url 'register_user' %}" class="cs-color cs-popup-joinus-btn login-popup ml-0" >Register</a></span> <a class="get-start-btn" style="padding: 10px 1px;" href="{% url 'register_vendor' %}">
@@ -54,6 +53,19 @@
 			</div>
 		</header>
 		<!-- Header End -->
+
+<script>
+	document.addEventListener("DOMContentLoaded", function() {
+		document.getElementById('logoutBtn').onclick = function(event) {
+			event.preventDefault(); // Prevent the default anchor behavior
+			const confirmAction = confirm("Are you sure you want to log out?");
+			if (confirmAction) {
+				window.location.href = "{% url 'logout' %}"; // Redirect to logout URL
+			}
+		};
+	});
+</script>
+		
 
 <script>
 	var x = document.getElementById("location");

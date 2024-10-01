@@ -9,7 +9,7 @@ from marketplace.models import Cart, Tax
 from menu.models import FoodItem
 from orders.forms import OrderForm
 from orders.models import Order, OrderedFood, Payment
-from orders.utils import generate_order_number
+from orders.utils import generate_order_number, order_total_by_vendor
 from django.contrib.sites.shortcuts import get_current_site
 
 
@@ -159,6 +159,9 @@ def payments(request):
                     'order': order,
                     'to_email': i.fooditem.vendor.user.email,
                     'ordered_food_to_vendor': ordered_food_to_vendor,
+                    'vendor_subtotal': order_total_by_vendor(order, i.fooditem.vendor.id)['subtotal'],
+                    'tax_data': order_total_by_vendor(order, i.fooditem.vendor.id)['tax_dict'],
+                    'vendor_grand_total': order_total_by_vendor(order, i.fooditem.vendor.id)['grand_total'],
                   
                 }
                 send_notification(mail_subject, mail_template, context)

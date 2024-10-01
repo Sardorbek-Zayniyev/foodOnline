@@ -166,7 +166,7 @@ def payments(request):
                 }
                 send_notification(mail_subject, mail_template, context)
 
-                # cart_items.delete() 
+                cart_items.delete() 
                 response = {
                             'order_number': order_number,
                             'transaction_id': transaction_id, 

@@ -12,6 +12,8 @@ from orders.models import Order
 import datetime
 
 # Create your views here.
+
+
 def register_user(request):
     if request.user.is_authenticated:
         messages.warning(request, 'You are already authenticated!')
@@ -19,15 +21,20 @@ def register_user(request):
     elif request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
-            user = create_user_and_send_verification_email(request, form, User.CUSTOMER, 'accounts/emails/account_verification_email.html')
-            messages.success(request, "Your Email verification link has been successfully sent. Please click it to complete the verification process.")
+            user = create_user_and_send_verification_email(
+                request, form, User.CUSTOMER, 'accounts/emails/account_verification_email.html')
+            messages.success(
+                request, "Your Email verification link has been successfully sent. Please click it to complete the verification process.")
             return redirect('login')
+        else:
+            messages.error(request, 'An error occured during registration')
     else:
         form = UserForm()
     context = {
-        'form':form
+        'form': form
     }
-    return render(request, 'accounts/register_user.html', context ) 
+    return render(request, 'accounts/register_user.html', context)
+
 
 def register_vendor(request):
     if request.user.is_authenticated:
@@ -37,8 +44,9 @@ def register_vendor(request):
         form = UserForm(request.POST)
         v_form = VendorForm(request.POST, request.FILES)
         if form.is_valid() and v_form.is_valid():
-          
-            user = create_user_and_send_verification_email(request, form, User.VENDOR, 'accounts/emails/account_verification_email.html')
+
+            user = create_user_and_send_verification_email(
+                request, form, User.VENDOR, 'accounts/emails/account_verification_email.html')
             vendor = v_form.save(commit=False)
             vendor.user = user
             vendor_name = v_form.cleaned_data['vendor_name']
@@ -46,25 +54,29 @@ def register_vendor(request):
             user_profile = UserProfile.objects.get(user=user)
             vendor.user_profile = user_profile
             vendor.save()
-            messages.success(request, "Your Email verification link has been successfully sent. Please click it to complete the verification process.")
-            return redirect('login')     
+            messages.success(
+                request, "Your Email verification link has been successfully sent. Please click it to complete the verification process.")
+            return redirect('login')
     else:
         form = UserForm()
         v_form = VendorForm()
-    context ={
+    context = {
         'form': form,
         'v_form': v_form,
     }
     return render(request, 'accounts/register_vendor.html', context)
 
+
 def activate(request, uidb64, token):
     # Activate the user by setting the is_active status to True
     user = activate_user(uidb64, token)
-    if user:
-        messages.success(request, 'Congratulations! Your account is activated.')
+    if user is not None:
+        messages.success(
+            request, 'Congratulations! Your account is activated.')
     else:
-        messages.error(request, 'Invalid activation link')
+        messages.error(request, 'Activation link is invalid or has expired.')
     return redirect('my_account')
+
 
 def login(request):
     if request.user.is_authenticated:
@@ -73,7 +85,7 @@ def login(request):
     elif request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
-        
+
         user = auth.authenticate(email=email, password=password)
         if user is not None:
             auth.login(request, user)
@@ -84,16 +96,19 @@ def login(request):
             return redirect('login')
     return render(request, 'accounts/login.html')
 
+
 def logout(request):
     auth.logout(request)
     messages.info(request, "You are logged out")
     return redirect('login')
-    
+
+
 @login_required(login_url='login')
 def my_account(request):
     user = request.user
     redirectUrl = detect_user(user)
     return redirect(redirectUrl)
+
 
 @login_required(login_url='login')
 @user_passes_test(check_role_customer)
@@ -107,6 +122,7 @@ def cust_dashboard(request):
     }
     return render(request, 'accounts/cust_dashboard.html', context)
 
+
 @login_required(login_url='login')
 @user_passes_test(check_role_vendor)
 def vendor_dashboard(request):
@@ -115,16 +131,19 @@ def vendor_dashboard(request):
     except Vendor.DoesNotExist:
         return redirect('some_error_page')
 
-    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('created_at')
+    orders = Order.objects.filter(
+        vendors__in=[vendor.id], is_ordered=True).order_by('created_at')
     recent_orders = orders[:10]
 
     # Current month's revenue
     current_month = datetime.datetime.now().month
-    current_month_orders = orders.filter(vendors__in=[vendor.id], created_at__month=current_month)
-    
+    current_month_orders = orders.filter(
+        vendors__in=[vendor.id], created_at__month=current_month)
+
     current_month_revenue = 0
     for order in current_month_orders:
-        current_month_revenue += order.get_total_by_vendor(vendor)['grand_total']
+        current_month_revenue += order.get_total_by_vendor(vendor)[
+            'grand_total']
 
     # Total revenue
     total_revenue = 0
@@ -146,7 +165,6 @@ def vendor_dashboard(request):
     return render(request, 'accounts/vendor_dashboard.html', context)
 
 
-
 def forgot_password(request):
     if request.method == 'POST':
         email = request.POST['email']
@@ -157,14 +175,17 @@ def forgot_password(request):
             # send reset password email
             mail_subject = 'Reset Your Password'
             email_template = 'accounts/emails/reset_password_email.html'
-            send_verification_email(request, user, mail_subject, email_template)
+            send_verification_email(
+                request, user, mail_subject, email_template)
 
-            messages.success(request, 'Password reset link has been sent to your email address.')
+            messages.success(
+                request, 'Password reset link has been sent to your email address.')
             return redirect('login')
         else:
             messages.error(request, 'Account does not exist')
             return redirect('forgot_password')
     return render(request, 'accounts/forgot_password.html')
+
 
 def reset_password_validate(request, uidb64, token):
     user = activate_user(uidb64, token)
@@ -176,8 +197,9 @@ def reset_password_validate(request, uidb64, token):
         messages.error(request, 'This link has expired!')
         return redirect('my_account')
 
+
 def reset_password(request):
-    
+
     if request.method == 'POST':
         password = request.POST['password']
         confirm_password = request.POST['confirm_password']
